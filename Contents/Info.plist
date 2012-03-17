@@ -17,31 +17,19 @@
 	<string>1.0</string>
 	
 	<key>PlexClientPlatforms</key>
-	<string>MacOSX</string>
-	<!-- TO ENABLE IOS
-	<key>PlexClientPlatforms</key>
-	<string>MacOSX,iOS</string>-->
-
-	<!--
+	<string>*</string>
 	<key>PlexMediaContainer</key>
 	<array>
-	### PICK THE APPROPRIATE ONES
-		<string>Flash</string>
-		<string>MP4</string>
-		<string>FLV</string>
+		<string>TS</string>
 	</array>
 	<key>PlexVideoCodec</key>
 	<array>
 		<string>H.264</string>
-		<string>H.263</string>
 	</array>
 	<key>PlexAudioCodec</key>
 	<array>
 		<string>AAC</string>
-		<string>MP3</string>
 	</array>
-	-->
-	
 	<key>PlexFrameworkVersion</key>
 	<string>2</string>
 	<key>PlexPluginMode</key>
@@ -51,5 +39,9 @@
 	<string>1</string>
 	<key>PlexPluginDevMode</key>
 	<string>0</string>
+	<key>PlexPluginRegions</key>
+	<array>
+		<string>CA</string>
+	</array>
 </dict>
 </plist>
