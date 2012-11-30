@@ -1,68 +1,50 @@
-VIDEO_PREFIX = "/video/ytv"
-NAME = "YTV"
-ART  = 'art-default.jpg'
-ICON = 'icon-default.png'
-
 BASE_URL = "http://www.ytv.com/videos/"
 YTV_PLAYER_KEY = "AQ~~,AAAAocwuf3E~,OkU0MlqQwrSzQO2jTf7KgSe64XrUuKHP"
 YTV_PLAYER_ID = "912499644001"
 AMF_URL = 'http://c.brightcove.com/services/messagebroker/amf'
 
 ####################################################################################################
-
-def Start():
-    ObjectContainer.title1 = NAME
-    ObjectContainer.art = R(ART)
-    DirectoryObject.thumb = R(ICON)
-    
-####################################################################################################
-@handler(VIDEO_PREFIX, NAME, ICON, ART)
-def MainMenu():
-    oc = ObjectContainer()
-    page = HTML.ElementFromURL(BASE_URL)
-    categories = []
-
-    for category in page.xpath('//div[@id="video-navigation"]//a'):
-        title = category.text
-        url = category.get('href')
-        if  url == '/videos/': url = '?'
-        if title.lower() in categories:
-            continue
-        else:
-            oc.add(DirectoryObject(key=Callback(CategoryPage, title=title, url=url), title=title))
-            categories.append(title.lower())
-
-    oc.objects.sort(key = lambda obj: obj.title)
-
-    return oc
+def NormalizeURL(url):
+	return url
 
 ####################################################################################################
-@route(VIDEO_PREFIX + "/category")
-def CategoryPage(title, url):
-    oc = ObjectContainer(title2=title)
+def MetadataObjectForURL(url):
+	
+	video = AmfRequest(playerID=YTV_PLAYER_ID, playerKey=YTV_PLAYER_KEY, videoPlayer=url.split('videoID=')[1])
+	Log(video)
+	title = video['displayName']
+	thumb = video['thumbnailURL']
+	summary = video['shortDescription']
 
-    request_url = BASE_URL + 'videos.ashx' + url
-    results = JSON.ObjectFromURL(request_url)
+	duration = int(video['length'])
+	
+	return VideoClipObject(
+		url = url,
+		title = title,
+		summary = summary,
+		duration = duration,
+		thumb = thumb
+	)
 
-    for video in results:
-        title = video['Name']
-        summary = video['ShortDescription']
-        thumb = video['ThumbnailURL']
-        duration = (int(video['Duration'].split(":")[0])*60 + int(video['Duration'].split(":")[1]))*1000
-        videoId = video['Id']
-        Log(videoId)
-        url = "YTV_PLUGIN://videoID=%s" % videoId
-        oc.add(
-            VideoClipObject(
-                url = url,
-                title = title,
-                summary = summary,
-                duration = duration, 
-                thumb = Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)
-            )
-        )
+####################################################################################################
+def MediaObjectsForURL(url):
 
-    return oc
+	return [
+		MediaObject(
+			parts = [PartObject(key=Callback(PlayVideo, videoId=url.split('videoID=')[1]))],
+			)
+	]
+
+####################################################################################################
+@indirect
+def PlayVideo(videoId):
+    video = AmfRequest(playerID=YTV_PLAYER_ID, playerKey=YTV_PLAYER_KEY, videoPlayer=videoId)
+    video_url = video['IOSRenditions'][0]['defaultURL']
+    return IndirectResponse(VideoClipObject, key=HTTPLiveStreamURL(url=video_url))
+    #video_url = video['renditions'][0]['defaultURL']
+    #(url, clip) = video_url.split('&', 1)
+
+    #return IndirectResponse(VideoClipObject, key=RTMPVideoURL(url=url, clip=clip))))
 
 ####################################################################################################
 def AmfRequest(playerID=None, playerKey=None, videoPlayer=None):

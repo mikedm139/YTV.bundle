@@ -4,25 +4,13 @@
 <dict>
 	<key>CFBundleIdentifier</key>
 	<string>com.plexapp.plugins.ytv</string>
-	<key>PlexAudioCodec</key>
-	<array>
-		<string>AAC</string>
-	</array>
 	<key>PlexClientPlatforms</key>
 	<string>*</string>
 	<key>PlexFrameworkVersion</key>
 	<string>2</string>
-	<key>PlexMediaContainer</key>
-	<array>
-		<string>TS</string>
-	</array>
 	<key>PlexPluginRegions</key>
 	<array>
 		<string>CA</string>
-	</array>
-	<key>PlexVideoCodec</key>
-	<array>
-		<string>H.264</string>
 	</array>
 </dict>
 </plist>
